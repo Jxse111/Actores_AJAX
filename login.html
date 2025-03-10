@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+Click nbfs://nbhost/SystemFileSystem/Templates/Other/html.html to edit this template
+--> 
+
+<html>
+    <head>
+        <title>Formulario Inicio de sesión</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    </head>
+    <body>
+        <h1>INICIA SESIÓN : </h1>
+        <form action="controladorLogin.php" method='post'>
+            <label>Usuario: </label>
+            <input type="text" name="usuarioExistente"><br><br>
+            <label>Contraseña: </label>
+            <input type="password" name="contraseñaExistente"><br><br>
+            Recordarme<input type="checkbox" id="recordarme" name="recordarme" value="Recordarme"><br><br>
+            <button type="submit" name="Entrar"> Entrar </button>
+            <button  type="submit" name="Registrarse"> Crear cuenta </button><br><br>
+        </form>
+    </body>
+</html>
