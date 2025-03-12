@@ -1,11 +1,10 @@
 <?php
-
 require_once './Actor.php';
 session_start();
 if (isset($_SESSION['usuario']) && $_SESSION['rol'] == "administrador") {
     echo nl2br("Bienvenido " . $_SESSION['usuario'] . ", " . $_SESSION['rol'] . ".\n");
 
-    // Manejar solicitud AJAX para obtener supervisores disponibles
+// Manejar solicitud AJAX para obtener supervisores disponibles
     if (isset($_POST['actorSeleccionado'])) {
         // Obtener y sanitizar el valor de actorSeleccionado
         $actorSeleccionado = filter_var($_POST['actorSeleccionado'], FILTER_SANITIZE_NUMBER_INT);
@@ -13,36 +12,47 @@ if (isset($_SESSION['usuario']) && $_SESSION['rol'] == "administrador") {
         // Verificar que el valor de actorSeleccionado sea un número válido
         if (!is_numeric($actorSeleccionado)) {
             echo "Error: El actor seleccionado no es válido.";
-            exit; // Detener la ejecución si el valor no es válido
-        }
+        } else {
+            require_once './Conexion.php';
+            $conexionBD = Conexion::conectarEspectaculosMySQLi();
 
-        require_once './Conexion.php';
-        $conexionBD = Conexion::conectarEspectaculosMySQLi();
+            try {
+                // Aquí obtenemos todos los actores excepto el seleccionado
+                $consultaSupervisor = $conexionBD->query("SELECT cdactor, nombre FROM actor WHERE cdactor != $actorSeleccionado");
 
-        try {
-            // Aquí obtenemos todos los actores excepto el seleccionado
-            $consultaSupervisor = $conexionBD->query("SELECT cdactor, nombre FROM actor WHERE cdactor != $actorSeleccionado");
+                // Verificar si la consulta devuelve resultados
+                if ($consultaSupervisor->num_rows > 0) {
+                    // Crear un array para los resultados de los supervisores
+                    $supervisores = [];
+                    while ($supervisor = $consultaSupervisor->fetch_assoc()) {
+                        $supervisores[] = $supervisor;
+                    }
+                } else {
+                    $supervisores = []; // Si no hay supervisores disponibles
+                }
+                Conexion::desconectar();
+            } catch (Exception $ex) {
+                echo "ERROR: " . $ex->getMessage();
+                $supervisores = [];  // En caso de error, no mostrar supervisores
+            }
 
-            // Verificar si la consulta devuelve resultados
-            if ($consultaSupervisor->num_rows > 0) {
-                echo "<option value='0'>Selecciona un Supervisor</option>";
-                while ($supervisor = $consultaSupervisor->fetch_assoc()) {
-                    // Mostrar supervisores, excluyendo al actor seleccionado
-                    echo "<option value='" . $supervisor['cdactor'] . "'>" . $supervisor['nombre'] . "</option>";
+            // Aquí comienza la parte HTML donde se genera el contenido
+            ?>
+            <option value="0"><?php echo "Selecciona un Supervisor" ?></option>
+            <?php
+            if (!empty($supervisores)) {
+                foreach ($supervisores as $supervisor) {
+                    // Usamos htmlspecialchars() para evitar problemas de seguridad
+                    echo "<option value='" . $supervisor['cdactor'] . "'>" . htmlspecialchars($supervisor['nombre']) . "</option>";
                 }
             } else {
                 echo "<option value='0'>No hay supervisores disponibles</option>";
             }
-
-            Conexion::desconectar();
-        } catch (Exception $ex) {
-            echo "ERROR: " . $ex->getMessage();
         }
-        exit; // Termina la ejecución del script aquí
     }
 
 
-    // Lógica para el resto de acciones: eliminar, buscar, asignar
+// Lógica para el resto de acciones: eliminar, buscar, asignar
     if (filter_has_var(INPUT_POST, "eliminar")) {
         $codigoActor = filter_input(INPUT_POST, "seleccionActor");
         if (Actor::eliminarActor($codigoActor)) {

@@ -13,31 +13,31 @@ if (!isset($_SESSION['usuario']) || $_SESSION['rol'] == "usuario") {
     <html>
         <head>
             <meta charset="UTF-8">
-            <title></title>
-            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+            <title>areaAdmin</title>
+            <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script> <!-- Implementamos la libreria de  JQuery para poder usar sus funciones -->
             <script>
-                $(document).ready(function () {
+                $(document).ready(function () {  //Nos aseguramos de que el código se ejecute solo después de que el DOM haya cargado completamente
                     $("select[name='seleccionActor']").change(function () {
-                        var actorSeleccionado = $(this).val();
+                        var actorSeleccionado = $(this).val(); // Obtenemos el valor del actor seleccionado
 
                         // Realizamos la solicitud AJAX para actualizar los supervisores
                         $.ajax({
-                            url: "controladorActor.php",
-                            method: "POST",
-                            data: {actorSeleccionado: actorSeleccionado},
-                            success: function (response) {
+                            url: "controladorActor.php", //Url a la se le hace la solicitud AJAX
+                            method: "POST", //Tipo de solicitud HTTP que en este caso será POST
+                            data: {actorSeleccionado: actorSeleccionado}, //Los datos enviados al servidor, en este caso el actor seleccionado
+                            success: function (response) { // Si todo funciona  se ejecutará esta función
                                 // Llenamos el desplegable de supervisores con las nuevas opciones
-                                $("select[name='seleccionSupervisor']").html(response);
+                                $("select[name='seleccionSupervisor']").html(response); // Actualiza el contenido del desplegable de supervisores con la respuesta del servidor
 
                                 // Remover la opción del actor seleccionado del desplegable de supervisores
                                 $("select[name='seleccionSupervisor'] option").each(function () {
-                                    if ($(this).val() == actorSeleccionado) {
-                                        $(this).remove(); // Remover la opción que coincide con el actor seleccionado
+                                    if ($(this).val() == actorSeleccionado) { // Si el valor de la opción es igual al actor seleccionado
+                                        $(this).remove(); // Eliminamos la opción que coincide con el actor seleccionado
                                     }
                                 });
                             },
-                            error: function (xhr, status, error) {
-                                console.log("Error: " + error);
+                            error: function (xhr, status, error) { //Si falla la solicitud de AJAX se ejecuta esta funcion
+                                console.log("Error: " + error); //Mensaje de error en caso de fallo con la solicitud de AJAX
                             }
                         });
                     });
